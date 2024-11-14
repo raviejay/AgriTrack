@@ -23,11 +23,16 @@ function App() {
   return (
     <Router>
       {isAuthenticated ? (
-        <Layout style={{ minHeight: "100vh" }}>
+        <Layout style={{ minHeight: "100vh", display: "flex" }}>
           <Sidebar />
-          <Layout className="site-layout">
+          <Layout style={{ flex: 1 }}>
             <Content
-              style={{ margin: "24px 16px", padding: 24, background: "#fff" }}
+              style={{
+                padding: 16,
+                background: "#fff",
+                margin: 0,
+                flex: 1,
+              }}
             >
               <Routes>
                 <Route path="/" element={<Dashboard />} />
