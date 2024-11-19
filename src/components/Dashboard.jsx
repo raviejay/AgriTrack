@@ -20,7 +20,7 @@ const { Text, Title } = Typography;
 export default function Dashboard() {
   // Fetch total animals
   const { data: animalCount, loading: loadingAnimals } = useFetchData(
-    "http://localhost:8000/api/animal/count"
+    "http://127.0.0.1:8000/api/animal/count"
   );
 
   // Fetch total livestock
