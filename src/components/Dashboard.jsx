@@ -1,16 +1,20 @@
 import { Card, Col, Row, Typography, Spin } from "antd";
 import {
   LineChart,
+  AreaChart,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
+  Area,
   ResponsiveContainer,
 } from "recharts"; // Import Recharts components
 import useFetchData from "./useFetchData"; // Import the custom hook
 import useFetchChartData from "./useFetchChartData"; // Import the custom hook
+import useFetchTopBarangay from "./useFetchTopBarangay";
+
 const { Text, Title } = Typography;
 
 export default function Dashboard() {
@@ -27,7 +31,11 @@ export default function Dashboard() {
   const { data: currentYear, loading: loadingCurrent } = useFetchData(
     "http://localhost:8000/api/livestock/currentyeartotal"
   );
-
+  const {
+    data: topBarangays,
+    loading: loadingBarangays,
+    error,
+  } = useFetchTopBarangay("http://localhost:8000/api/livestock/TopBarangay");
   // Fetch yearly livestock data for chart
   const { data: yearlyLivestockData, loading: loadingYearlyData } =
     useFetchChartData("http://localhost:8000/api/livestock/YearsData");
@@ -38,8 +46,8 @@ export default function Dashboard() {
   const formattedDate = currentDate.toLocaleDateString("en-US", options);
 
   return (
-    <div>
-      <h3>Dashboard</h3>
+    <div style={{ margin: "20px" }}>
+      <h2 style={{ fontWeight: "bold" }}>Dashboard</h2>
 
       {/* Top 3 boxes */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
@@ -214,8 +222,8 @@ export default function Dashboard() {
             {loadingYearlyData ? (
               <Spin tip="Loading chart..." />
             ) : (
-              <ResponsiveContainer width="100%" height={500}>
-                <LineChart data={yearlyLivestockData}>
+              <ResponsiveContainer width="100%" height={350}>
+                <AreaChart data={yearlyLivestockData}>
                   {/* Chart Title */}
                   <Title level={3} style={{ textAlign: "center" }}>
                     Yearly Total Livestock Count
@@ -236,13 +244,13 @@ export default function Dashboard() {
                   />
                   <Tooltip />
                   <Legend />
-                  <Line
-                    type="monotone"
+                  <Area
                     dataKey="total_livestock_count"
                     stroke="#FFA500"
-                    activeDot={{ r: 8 }}
+                    fill="#6A9C89"
+                    fillOpacity={0.3}
                   />
-                </LineChart>
+                </AreaChart>
               </ResponsiveContainer>
             )}
           </Card>
@@ -251,9 +259,95 @@ export default function Dashboard() {
           <Card
             title="Leaderboard"
             bordered={false}
-            style={{ height: "100%", borderRadius: 0 }}
+            style={{
+              height: "100%",
+              borderRadius: 0,
+              background: "linear-gradient(to top, #6A9C89, #fff)", // Gradient background
+              padding: "16px",
+            }}
           >
-            Leaderboard Content
+            {loadingBarangays ? (
+              <Spin tip="Loading leaderboard..." />
+            ) : error ? (
+              <Text type="danger">{error}</Text>
+            ) : topBarangays && topBarangays.length > 0 ? (
+              <div>
+                {/* Top 1 */}
+                {topBarangays[0] && (
+                  <div
+                    style={{
+                      marginBottom: "24px",
+                      textAlign: "center",
+                      padding: "16px",
+                      background: "rgba(255, 255, 255, 0.8)", // Slightly transparent background
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <Text
+                      strong
+                      style={{
+                        fontSize: 24,
+                        fontFamily: "'Open Sans', sans-serif",
+                        color: "#6A9C89", // Dark green for emphasis
+                      }}
+                    >
+                      🥇 {topBarangays[0].barangay_name}
+                    </Text>
+                    <br />
+                    <Text
+                      style={{
+                        fontSize: 20,
+                        fontWeight: "bold",
+                        color: "#555",
+                      }}
+                    >
+                      Total Livestock:{" "}
+                      {topBarangays[0].total_livestock.toLocaleString()}
+                    </Text>
+                  </div>
+                )}
+
+                {/* Top 2 and 3 */}
+                <div>
+                  {topBarangays.slice(1, 3).map((barangay, index) => (
+                    <div
+                      key={barangay.barangay_id}
+                      style={{
+                        marginBottom: "12px",
+                        padding: "12px",
+                        background: "rgba(255, 255, 255, 0.9)", // Slightly transparent background
+                        borderRadius: "8px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        strong
+                        style={{
+                          fontSize: 16,
+                          fontFamily: "'Open Sans', sans-serif",
+                          color: "#6A9C89", // Dark green
+                        }}
+                      >
+                        {index === 0 ? "🥈" : "🥉"} {barangay.barangay_name}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontWeight: "bold",
+                          color: "#555",
+                        }}
+                      >
+                        {barangay.total_livestock.toLocaleString()}
+                      </Text>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <Text>No data available</Text>
+            )}
           </Card>
         </Col>
       </Row>

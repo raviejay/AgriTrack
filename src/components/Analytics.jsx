@@ -1,5 +1,12 @@
+import LivestockInsights from "./LiveStockInsights";
+
 function Analytics() {
-  return <div>Analytics</div>;
+  return (
+    <div>
+      <h2 style={{ fontWeight: "bold" }}>Analytics</h2>
+      <LivestockInsights />
+    </div>
+  );
 }
 
 export default Analytics;
