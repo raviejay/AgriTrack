@@ -56,6 +56,16 @@
   cursor: pointer;
   color: #fff;
 }
+.profile-text,
+.profile-icon {
+  color: black;
+  transition: color 0.3s ease;
+}
+
+.profile-text:hover,
+.profile-icon:hover {
+  color: #1890ff;
+}
 
 .profile span {
   margin-left: 10px;

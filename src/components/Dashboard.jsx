@@ -1,8 +1,6 @@
 import { Card, Col, Row, Typography, Spin } from "antd";
 import {
-  LineChart,
   AreaChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,

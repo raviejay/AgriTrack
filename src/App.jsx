@@ -14,6 +14,7 @@ import Settings from "./components/Settings";
 import Login from "./components/Login";
 import "./components/sidebar.css";
 import Profile from "./components/Profile";
+import UserManagement from "./components/UserManagement";
 
 const { Content } = Layout;
 
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/user-management" element={<UserManagement />} />
                 <Route path="*" element={<Navigate to="/" />} />{" "}
                 {/* Redirect unknown paths to Dashboard */}
               </Routes>

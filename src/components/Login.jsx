@@ -15,9 +15,10 @@ const Login = () => {
       // Check if the login was successful and the token is present
       if (response.data.token) {
         const token = await response.data.token;
-
+        const user_type = await response.data.user_type;
         // Store the token in local storage
         localStorage.setItem("authToken", token);
+        localStorage.setItem("userType", user_type);
 
         // Show success message
         message.success({

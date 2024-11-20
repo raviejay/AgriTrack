@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { Table, Typography, Spin, Input, Space } from "antd";
+import { useEffect, useState } from "react";
+import { Table, Spin, Input, Space, Button, Alert } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./animaldatatable.css"; // Import custom CSS
-import { SearchOutlined } from "@ant-design/icons";
-
-const { Title } = Typography;
+import * as XLSX from "xlsx"; // Import the xlsx library
 
 const AnimalDataGroupedTable = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchText, setSearchText] = useState(""); // For search functionality
 
   // Fetch data from the API
   useEffect(() => {
@@ -22,7 +23,7 @@ const AnimalDataGroupedTable = () => {
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching animal data:", error);
+        setError("Failed to fetch data.");
         setLoading(false);
       });
   }, []);
@@ -133,34 +134,67 @@ const AnimalDataGroupedTable = () => {
     setFilteredData(filtered);
   };
 
-  // Render the component
+  // Export data to Excel
+  const handleExport = () => {
+    const ws = XLSX.utils.json_to_sheet(filteredData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Animal Data");
+    XLSX.writeFile(wb, "AnimalData.xlsx");
+  };
+
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ margin: "10px" }}>
+      {/* Inventory Title and Search Bar */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          margin: 0,
         }}
       >
-        <h2 style={{ marginTop: "20px", marginBottom: "20px" }}>Inventory</h2>
-
-        {/* Search Bar */}
-        <Space style={{ marginBottom: "20px", width: "auto" }}>
+        <h2
+          style={{
+            fontWeight: "bold",
+            margin: 0,
+            lineHeight: "1", // Ensures consistent alignment
+          }}
+        >
+          Inventory
+        </h2>
+        <Space>
           <Input
             placeholder="Search by Animal or Kind of Animal"
             onChange={handleSearch}
+            style={{
+              width: 400,
+              height: 35, // Ensure consistent height
+              display: "flex",
+              alignItems: "center", // Align content inside the input
+            }}
             allowClear
-            style={{ maxWidth: "400px" }}
             suffix={<SearchOutlined style={{ color: "#6A9C89" }} />}
           />
         </Space>
       </div>
 
+      {/* Export Button */}
+      <div style={{ marginTop: "15px", marginBottom: "20px" }}>
+        <Button
+          type="primary"
+          onClick={handleExport}
+          style={{ backgroundColor: "#6A9C89", borderColor: "#6A9C89" }}
+        >
+          Export to Excel
+        </Button>
+      </div>
+
+      {/* Spinner and Error Handling */}
+      {loading && <Spin size="large" />}
+      {error && <Alert message={error} type="error" />}
+
       {/* Table */}
-      {loading ? (
-        <Spin size="large" />
-      ) : (
+      {!loading && !error && (
         <Table
           columns={columns}
           dataSource={filteredData}

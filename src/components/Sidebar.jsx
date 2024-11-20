@@ -10,6 +10,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   CheckCircleOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import "./sidebar.css";
@@ -19,14 +20,14 @@ const { Sider } = Layout;
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const navigate = useNavigate(); // To programmatically navigate to other pages
+  const [selectedKey, setSelectedKey] = useState(window.location.pathname); // Track the active menu item
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
   };
 
   const handleLogout = () => {
-    // Clear the token from localStorage and redirect to login page
     localStorage.removeItem("authToken");
     message.success({
       content: "Logout success!",
@@ -39,16 +40,21 @@ const Sidebar = () => {
     }, 2000);
   };
 
+  const userType = localStorage.getItem("userType");
+
   const profileMenu = (
     <Menu>
       <Menu.Item
-        key="details"
+        key="/profile"
         icon={<UserOutlined />}
-        onClick={() => navigate("/profile")}
+        onClick={() => {
+          setSelectedKey("/profile");
+          navigate("/profile");
+        }}
       >
         Profile Details
       </Menu.Item>
-      <Menu.Item key="logout" icon={<UserOutlined />} onClick={handleLogout}>
+      <Menu.Item key="/logout" icon={<UserOutlined />} onClick={handleLogout}>
         Logout
       </Menu.Item>
     </Menu>
@@ -64,7 +70,6 @@ const Sidebar = () => {
     >
       {/* Sidebar header */}
       <div className="sidebar-header">
-        {/* Logo and button for expanding/collapsing */}
         {!collapsed && (
           <div className="logo">
             <img src={logo} alt="Logo" className="logo-img" />
@@ -81,32 +86,82 @@ const Sidebar = () => {
       {/* Menu Items */}
       <Menu
         style={{ backgroundColor: "#6A9C89" }}
-        defaultSelectedKeys={["/"]}
+        selectedKeys={[selectedKey]}
         mode="inline"
       >
-        <Menu.Item key="/" icon={<DashboardOutlined />}>
-          <Link to="/">Dashboard</Link>
+        <Menu.Item
+          key="/"
+          icon={<DashboardOutlined />}
+          onClick={() => {
+            setSelectedKey("/");
+            navigate("/");
+          }}
+        >
+          Dashboard
         </Menu.Item>
-        <Menu.Item key="/data-entry" icon={<FormOutlined />}>
-          <Link to="/data-entry">Data Entry</Link>
+        <Menu.Item
+          key="/data-entry"
+          icon={<FormOutlined />}
+          onClick={() => {
+            setSelectedKey("/data-entry");
+            navigate("/data-entry");
+          }}
+        >
+          Data Entry
         </Menu.Item>
-        <Menu.Item key="/inventory" icon={<InboxOutlined />}>
-          <Link to="/inventory">Inventory</Link>
+        <Menu.Item
+          key="/inventory"
+          icon={<InboxOutlined />}
+          onClick={() => {
+            setSelectedKey("/inventory");
+            navigate("/inventory");
+          }}
+        >
+          Inventory
         </Menu.Item>
-        <Menu.Item key="/analytics" icon={<LineChartOutlined />}>
-          <Link to="/analytics">Analytics</Link>
+        <Menu.Item
+          key="/analytics"
+          icon={<LineChartOutlined />}
+          onClick={() => {
+            setSelectedKey("/analytics");
+            navigate("/analytics");
+          }}
+        >
+          Analytics
         </Menu.Item>
-        <Menu.Item key="/settings" icon={<SettingOutlined />}>
-          <Link to="/settings">Settings</Link>
+        <Menu.Item
+          key="/settings"
+          icon={<SettingOutlined />}
+          onClick={() => {
+            setSelectedKey("/settings");
+            navigate("/settings");
+          }}
+        >
+          Settings
         </Menu.Item>
+
+        {userType === "admin" && (
+          <Menu.Item
+            key="/user-management"
+            icon={<TeamOutlined />}
+            onClick={() => {
+              setSelectedKey("/user-management");
+              navigate("/user-management");
+            }}
+          >
+            User Management
+          </Menu.Item>
+        )}
       </Menu>
 
       {/* Profile Section with Dropdown */}
-      <div className="profile">
+      <div
+        className={`profile ${selectedKey === "/profile" ? "selected" : ""}`}
+      >
         <Dropdown overlay={profileMenu} trigger={["click"]}>
           <a onClick={(e) => e.preventDefault()}>
             <Space>
-              <UserOutlined />
+              <UserOutlined className="profile-icon" />
               {!collapsed && <span className="profile-text">Profile</span>}
             </Space>
           </a>

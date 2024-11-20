@@ -99,22 +99,39 @@ const FarmerDetails = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          margin: 0,
         }}
       >
-        <h2 style={{ fontWeight: "bold" }}>Inventory</h2>
+        {/* Adjusted h2 to align better */}
+        <h2
+          style={{
+            fontWeight: "bold",
+            margin: 0,
+            lineHeight: "1", // Ensures consistent alignment
+          }}
+        >
+          Inventory
+        </h2>
+
+        {/* Input aligned with the heading */}
         <Space>
           <Input
             placeholder="Search by Farmer Name"
             value={searchText}
             onChange={handleSearchChange}
-            style={{ width: 200 }}
+            style={{
+              width: 400,
+              height: 35, // Ensure consistent height
+              display: "flex",
+              alignItems: "center", // Align content inside the input
+            }}
             suffix={<SearchOutlined style={{ color: "#6A9C89" }} />} // Search icon with custom color
           />
         </Space>
       </div>
 
       {/* Export Button */}
-      <div style={{ marginTop: "20px", marginBottom: "20px" }}>
+      <div style={{ marginTop: "15px", marginBottom: "20px" }}>
         <Button
           type="primary"
           onClick={handleExport}
