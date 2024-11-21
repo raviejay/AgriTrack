@@ -3,24 +3,23 @@ import axios from "axios";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import "./login.css";
 
+import logo from "../images/logo.png";
+
 const Login = () => {
   const onFinish = async (values) => {
     try {
-      // Send a POST request to your backend API
       const response = await axios.post("http://localhost:8000/api/login", {
         email: values.email,
         password: values.password,
       });
 
-      // Check if the login was successful and the token is present
       if (response.data.token) {
-        const token = await response.data.token;
-        const user_type = await response.data.user_type;
-        // Store the token in local storage
+        const token = response.data.token;
+        const user_type = response.data.user_type;
+
         localStorage.setItem("authToken", token);
         localStorage.setItem("userType", user_type);
 
-        // Show success message
         message.success({
           content: "Login success!",
           duration: 4,
@@ -30,15 +29,12 @@ const Login = () => {
         setTimeout(() => {
           window.location.reload();
         }, 2000);
-        // Redirect to a different page if necessary
-        // Example: window.location.href = "/dashboard";
       } else {
         message.error(
           response.data.message || "Login failed. Please try again."
         );
       }
     } catch (error) {
-      // Handle error response
       message.error("An error occurred during login. Please try again.");
       console.error("Login error:", error);
     }
@@ -51,8 +47,16 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="background-blur"></div>
+      <div className="logo-container">
+        <img
+          src={logo} // Replace with the path to your logo
+          alt="Logo"
+          className="logo"
+        />
+        <h1>City Agriculture and Veterinary Department</h1>
+      </div>
       <div className="login-form-wrapper">
-        <h2 className="login-title">Login</h2>
+        <h2 className="login-title">Sign in</h2>
         <Form
           name="login"
           onFinish={onFinish}

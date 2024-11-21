@@ -1,14 +1,17 @@
 .sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
   padding: 20px;
   color: #fff;
+  height: 60px;
 }
 
 .logo {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  margin: 10px;
 }
 
 /* Default logo image */

@@ -186,7 +186,7 @@ const DataEntry = () => {
             <Row gutter={24}>
               <Col span={12}>
                 <Form.Item
-                  label="Animal Name"
+                  label="Kind of Animal"
                   name="animal_name"
                   rules={[
                     {
@@ -233,17 +233,17 @@ const DataEntry = () => {
             <Row gutter={24}>
               <Col span={12}>
                 <Form.Item
-                  label="Kind of Animal"
+                  label="Breed of Animal"
                   name="kind_of_animal"
                   rules={[
                     {
                       required: true,
-                      message: "Please enter the kind of animal",
+                      message: "Please enter the breed of animal",
                     },
                   ]}
                 >
                   <Input
-                    placeholder="Enter kind of animal"
+                    placeholder="Enter breed of animal"
                     style={{
                       borderRadius: "6px",
                       border: `1px solid ${borderColor}`,
