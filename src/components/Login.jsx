@@ -16,9 +16,11 @@ const Login = () => {
       if (response.data.token) {
         const token = response.data.token;
         const user_type = response.data.user_type;
+        const user_name = response.data.name;
 
         localStorage.setItem("authToken", token);
         localStorage.setItem("userType", user_type);
+        localStorage.setItem("userName", user_name);
 
         message.success({
           content: "Login success!",

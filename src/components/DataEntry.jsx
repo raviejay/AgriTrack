@@ -1,20 +1,53 @@
-import { PhoneOutlined, UserOutlined } from "@ant-design/icons";
+import React, { useState } from "react";
 import {
-  Button,
-  Card,
-  Col,
   Form,
   Input,
-  InputNumber,
-  message,
-  Row,
   Select,
+  InputNumber,
+  Button,
+  Card,
+  Row,
+  Col,
+  message,
 } from "antd";
+import { PhoneOutlined, UserOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
 const DataEntry = () => {
   const [form] = Form.useForm();
+  const [breeds, setBreeds] = useState([]);
+
+  const animals = [
+    "Carabao",
+    "Cattle",
+    "Swine",
+    "Goat",
+    "Chicken",
+    "Sheep",
+    "Turkey",
+    "Geese",
+    "Duck",
+    "Horse",
+  ];
+
+  const animalBreeds = {
+    Carabao: ["Carabull", "Caracow"],
+    Cattle: ["Bull", "Cow"],
+    Swine: ["Boar", "Sow", "Fattener", "Piglet"],
+    Goat: ["Buck", "Doe"],
+    Chicken: ["Broiler", "Fighting Cocks", "Native", "Layer"],
+    Sheep: ["Ram", "Ewe"],
+    Turkey: ["None"],
+    Geese: ["None"],
+    Duck: ["None"],
+    Horse: ["None"],
+  };
+
+  const handleAnimalChange = (value) => {
+    setBreeds(animalBreeds[value] || []);
+    form.setFieldsValue({ kind_of_animal: undefined }); // Reset breed field
+  };
 
   const handleSubmit = async (values) => {
     try {
@@ -38,36 +71,29 @@ const DataEntry = () => {
     }
   };
 
-  // Updated color palette
   const headerColor = "#6A9C89";
   const lighterShade = "#E6F5E4";
   const borderColor = "#CBD5E0";
 
   return (
     <div style={{ margin: "10px" }}>
-      {/* Adjusted h2 to align better */}
       <h2
         style={{
           fontWeight: "bold",
           margin: 0,
-          lineHeight: "1", // Ensures consistent alignment
+          lineHeight: "1",
         }}
       >
         Data Entry
       </h2>
-
-      {/* Form Section */}
 
       <div style={{ padding: "20px", backgroundColor: "#FFFFFF" }}>
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
-          initialValues={{
-            quantity: 1,
-          }}
+          initialValues={{ quantity: 1 }}
         >
-          {/* Farmer Information */}
           <Card
             title="Farmer Information"
             style={{
@@ -88,10 +114,7 @@ const DataEntry = () => {
                   label="First Name"
                   name="first_name"
                   rules={[
-                    {
-                      required: true,
-                      message: "Please enter your first name",
-                    },
+                    { required: true, message: "Please enter your first name" },
                   ]}
                 >
                   <Input
@@ -110,10 +133,7 @@ const DataEntry = () => {
                   label="Last Name"
                   name="last_name"
                   rules={[
-                    {
-                      required: true,
-                      message: "Please enter your last name",
-                    },
+                    { required: true, message: "Please enter your last name" },
                   ]}
                 >
                   <Input
@@ -132,10 +152,7 @@ const DataEntry = () => {
               label="Contact"
               name="contact"
               rules={[
-                {
-                  required: true,
-                  message: "Please enter your contact number",
-                },
+                { required: true, message: "Please enter your contact number" },
               ]}
             >
               <Input
@@ -152,24 +169,31 @@ const DataEntry = () => {
               label="Barangay Name"
               name="barangay_name"
               rules={[
-                {
-                  required: true,
-                  message: "Please enter your barangay name",
-                },
+                { required: true, message: "Please enter your barangay name" },
               ]}
             >
-              <Input
-                placeholder="Enter barangay name"
-                style={{
-                  borderRadius: "6px",
-                  border: `1px solid ${borderColor}`,
-                  padding: "8px",
-                }}
-              />
+              <Select
+                showSearch
+                placeholder="Select or type barangay name"
+                filterOption={(input, option) =>
+                  option?.children.toLowerCase().includes(input.toLowerCase())
+                }
+              >
+                {/* Barangay options */}
+                {[
+                  "Agusan Pequeño",
+                  "Ambago",
+                  "Amparo",
+                  // Add other barangay names...
+                ].map((barangay) => (
+                  <Option key={barangay} value={barangay}>
+                    {barangay}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Card>
 
-          {/* Animal Information */}
           <Card
             title="Animal Information"
             style={{
@@ -189,22 +213,41 @@ const DataEntry = () => {
                   label="Kind of Animal"
                   name="animal_name"
                   rules={[
-                    {
-                      required: true,
-                      message: "Please enter the animal name",
-                    },
+                    { required: true, message: "Please select an animal" },
                   ]}
                 >
-                  <Input
-                    placeholder="Enter animal name"
-                    style={{
-                      borderRadius: "6px",
-                      border: `1px solid ${borderColor}`,
-                      padding: "8px",
-                    }}
-                  />
+                  <Select
+                    placeholder="Select animal"
+                    onChange={handleAnimalChange}
+                  >
+                    {animals.map((animal) => (
+                      <Option key={animal} value={animal}>
+                        {animal}
+                      </Option>
+                    ))}
+                  </Select>
                 </Form.Item>
               </Col>
+              <Col span={12}>
+                <Form.Item
+                  label="Breed of Animal"
+                  name="kind_of_animal"
+                  rules={[{ required: true, message: "Please select a breed" }]}
+                >
+                  <Select
+                    placeholder="Select breed"
+                    disabled={breeds.length === 0}
+                  >
+                    {breeds.map((breed) => (
+                      <Option key={breed} value={breed}>
+                        {breed}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={24}>
               <Col span={12}>
                 <Form.Item
                   label="Quantity"
@@ -213,42 +256,14 @@ const DataEntry = () => {
                     {
                       required: true,
                       type: "number",
-                      min: 1,
-                      message: "Please enter a valid quantity",
+                      message: "Enter quantity",
                     },
                   ]}
                 >
                   <InputNumber
+                    min={1}
                     placeholder="Enter quantity"
-                    style={{
-                      width: "100%",
-                      borderRadius: "6px",
-                      border: `1px solid ${borderColor}`,
-                      padding: "5px",
-                    }}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={24}>
-              <Col span={12}>
-                <Form.Item
-                  label="Breed of Animal"
-                  name="kind_of_animal"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter the breed of animal",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Enter breed of animal"
-                    style={{
-                      borderRadius: "6px",
-                      border: `1px solid ${borderColor}`,
-                      padding: "8px",
-                    }}
+                    style={{ width: "100%" }}
                   />
                 </Form.Item>
               </Col>
@@ -256,18 +271,9 @@ const DataEntry = () => {
                 <Form.Item
                   label="Category"
                   name="category"
-                  rules={[
-                    { required: true, message: "Please select a category" },
-                  ]}
+                  rules={[{ required: true, message: "Select a category" }]}
                 >
-                  <Select
-                    placeholder="Select category"
-                    style={{
-                      borderRadius: "6px",
-                      border: `1px solid ${borderColor}`,
-                      height: "40px",
-                    }}
-                  >
+                  <Select placeholder="Select category">
                     <Option value="commercial">Commercial</Option>
                     <Option value="backyard">Backyard</Option>
                   </Select>
@@ -277,38 +283,25 @@ const DataEntry = () => {
             <Form.Item
               label="Year"
               name="year"
-              rules={[{ required: true, message: "Please enter a year" }]}
+              rules={[{ required: true, message: "Enter a year" }]}
             >
-              <Input
-                placeholder="Enter year"
-                style={{
-                  borderRadius: "6px",
-                  border: `1px solid ${borderColor}`,
-                  padding: "8px",
-                }}
-              />
+              <Input placeholder="Enter year" />
             </Form.Item>
           </Card>
 
-          {/* Submit Button */}
           <Form.Item style={{ textAlign: "center", marginTop: "20px" }}>
             <Button
               type="primary"
               htmlType="submit"
               style={{
                 backgroundColor: headerColor,
-                borderColor: "#2F855A",
+                borderColor: headerColor,
                 borderRadius: "8px",
                 padding: "10px 20px",
                 fontSize: "16px",
                 fontWeight: "bold",
                 color: "#fff",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
               }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#2F855A")}
-              onMouseLeave={(e) =>
-                (e.target.style.backgroundColor = headerColor)
-              }
             >
               Submit
             </Button>

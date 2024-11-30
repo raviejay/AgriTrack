@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import { Table, Spin, Input, Space, Button, Alert } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Table, Spin, Input, Space, Button, Alert, Modal } from "antd";
+import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
-import "./animaldatatable.css"; // Import custom CSS
-import * as XLSX from "xlsx"; // Import the xlsx library
+import * as XLSX from "xlsx";
+import FilterSelect from "./FilterSelect"; // Import the FilterSelect component
+import "./animaldatatable.css"; // Custom CSS
+import DataEntry from "./DataEntry"; // Import the DataEntry component
 
-const AnimalDataGroupedTable = () => {
+const AnimalDataGroupedTable = ({ currentComponent, setCurrentComponent }) => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchText, setSearchText] = useState(""); // For search functionality
-
+  const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
   // Fetch data from the API
   useEffect(() => {
     axios
@@ -31,6 +33,8 @@ const AnimalDataGroupedTable = () => {
   // Format the data for the table
   const formatData = (data) => {
     const formatted = [];
+    const years = [2021, 2022, 2023, 2024]; // The years we want to handle
+
     data.forEach((animal) => {
       animal["Kinds of Animals"].forEach((kind) => {
         const row = {
@@ -38,14 +42,25 @@ const AnimalDataGroupedTable = () => {
           kindName: kind["Kind Name"],
         };
 
-        kind["Yearly Data"].forEach((yearData) => {
-          row[`commercial_${yearData.Year}`] = yearData["Commercial Count"];
-          row[`backyard_${yearData.Year}`] = yearData["Backyard Count"];
+        // Loop through each year and check if data exists, otherwise set to 0
+        years.forEach((year) => {
+          const yearData = kind["Yearly Data"].find(
+            (data) => data.Year === String(year)
+          );
+
+          // If the year data is found, assign the counts; otherwise, assign 0
+          row[`commercial_${year}`] = yearData
+            ? yearData["Commercial Count"] || 0
+            : 0;
+          row[`backyard_${year}`] = yearData
+            ? yearData["Backyard Count"] || 0
+            : 0;
         });
 
         formatted.push(row);
       });
     });
+
     return formatted;
   };
 
@@ -96,6 +111,12 @@ const AnimalDataGroupedTable = () => {
           key: "commercial_2023",
           align: "center",
         },
+        {
+          title: "2024",
+          dataIndex: "commercial_2024",
+          key: "commercial_2024",
+          align: "center",
+        },
       ],
     },
     {
@@ -119,6 +140,12 @@ const AnimalDataGroupedTable = () => {
           key: "backyard_2023",
           align: "center",
         },
+        {
+          title: "2024",
+          dataIndex: "backyard_2024",
+          key: "backyard_2024",
+          align: "center",
+        },
       ],
     },
   ];
@@ -134,6 +161,14 @@ const AnimalDataGroupedTable = () => {
     setFilteredData(filtered);
   };
 
+  // Handle filter changes (you can expand this with multiple filter options)
+  const handleFilterChange = (value) => {
+    const filtered = data.filter((item) =>
+      item.animalName.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredData(filtered);
+  };
+
   // Export data to Excel
   const handleExport = () => {
     const ws = XLSX.utils.json_to_sheet(filteredData);
@@ -142,9 +177,17 @@ const AnimalDataGroupedTable = () => {
     XLSX.writeFile(wb, "AnimalData.xlsx");
   };
 
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+  };
+
   return (
     <div style={{ margin: "10px" }}>
-      {/* Inventory Title and Search Bar */}
+      {/* Title, Search Bar, and Filter Select */}
       <div
         style={{
           display: "flex",
@@ -178,15 +221,42 @@ const AnimalDataGroupedTable = () => {
         </Space>
       </div>
 
-      {/* Export Button */}
-      <div style={{ marginTop: "15px", marginBottom: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "15px",
+          marginBottom: "20px",
+          gap: "10px",
+        }}
+      >
+        {/* Add New Entry Button */}
         <Button
           type="primary"
-          onClick={handleExport}
-          style={{ backgroundColor: "#6A9C89", borderColor: "#6A9C89" }}
+          onClick={showModal}
+          style={{
+            backgroundColor: "#6A9C89",
+            borderColor: "#6A9C89",
+          }}
+          icon={<PlusOutlined />}
         >
-          Export to Excel
+          Add New Entry
         </Button>
+
+        {/* Export and Filter Options */}
+        <div style={{ display: "flex", gap: "10px" }}>
+          <FilterSelect
+            currentComponent={currentComponent}
+            setCurrentComponent={setCurrentComponent}
+          />
+          <Button
+            type="primary"
+            onClick={handleExport}
+            style={{ backgroundColor: "#6A9C89", borderColor: "#6A9C89" }}
+          >
+            Export to Excel
+          </Button>
+        </div>
       </div>
 
       {/* Spinner and Error Handling */}
@@ -205,6 +275,15 @@ const AnimalDataGroupedTable = () => {
           className="custom-table"
         />
       )}
+      {/* Modal for Data Entry */}
+      <Modal
+        visible={isModalVisible}
+        onCancel={handleModalClose}
+        footer={null} // Remove default footer buttons
+        width={800} // Optional: Adjust modal width
+      >
+        <DataEntry />
+      </Modal>
     </div>
   );
 };

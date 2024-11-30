@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
-import { Table, Spin, Alert, Input, Space, Button } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Table, Spin, Alert, Input, Space, Button, Modal } from "antd";
+import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
 import * as XLSX from "xlsx";
+import FilterSelect from "./FilterSelect"; // Import the FilterSelect component
+import DataEntry from "./DataEntry"; // Import the DataEntry component
 
-const BarangayData = () => {
+const BarangayData = ({ currentComponent, setCurrentComponent }) => {
   const [barangayData, setBarangayData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
 
   useEffect(() => {
     // Fetch data from the API
@@ -68,6 +71,14 @@ const BarangayData = () => {
     XLSX.writeFile(wb, "BarangayData.xlsx");
   };
 
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+  };
+
   return (
     <div style={{ margin: "10px" }}>
       {/* Title and Search Bar */}
@@ -86,7 +97,7 @@ const BarangayData = () => {
             lineHeight: "1", // Ensures consistent alignment
           }}
         >
-          Inventory
+          Barangay Data
         </h2>
         <Space>
           <Input
@@ -99,20 +110,46 @@ const BarangayData = () => {
               display: "flex",
               alignItems: "center", // Align content inside the input
             }}
-            suffix={<SearchOutlined style={{ color: "#6A9C89" }} />}
           />
         </Space>
       </div>
 
-      {/* Export Button */}
-      <div style={{ marginTop: "15px", marginBottom: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "15px",
+          marginBottom: "20px",
+          gap: "10px",
+        }}
+      >
+        {/* Add New Entry Button */}
         <Button
           type="primary"
-          onClick={handleExport}
-          style={{ backgroundColor: "#6A9C89", borderColor: "#6A9C89" }}
+          onClick={showModal}
+          style={{
+            backgroundColor: "#6A9C89",
+            borderColor: "#6A9C89",
+          }}
+          icon={<PlusOutlined />}
         >
-          Export to Excel
+          Add New Entry
         </Button>
+
+        {/* Export and Filter Options */}
+        <div style={{ display: "flex", gap: "10px" }}>
+          <FilterSelect
+            currentComponent={currentComponent}
+            setCurrentComponent={setCurrentComponent}
+          />
+          <Button
+            type="primary"
+            onClick={handleExport}
+            style={{ backgroundColor: "#6A9C89", borderColor: "#6A9C89" }}
+          >
+            Export to Excel
+          </Button>
+        </div>
       </div>
 
       {/* Spinner and Error Handling */}
@@ -144,6 +181,15 @@ const BarangayData = () => {
           }}
         />
       )}
+      {/* Modal for Data Entry */}
+      <Modal
+        visible={isModalVisible}
+        onCancel={handleModalClose}
+        footer={null} // Remove default footer buttons
+        width={800} // Optional: Adjust modal width
+      >
+        <DataEntry />
+      </Modal>
     </div>
   );
 };

@@ -1,29 +1,29 @@
 import { useState, useEffect } from "react";
-import { Table, Spin, Alert, Input, Space, Button } from "antd";
-import { SearchOutlined } from "@ant-design/icons"; // Import the search icon
+import { Table, Spin, Alert, Input, Space, Button, Modal } from "antd";
+import { SearchOutlined, PlusOutlined } from "@ant-design/icons"; // Import icons
 import axios from "axios";
-import * as XLSX from "xlsx"; // Import the xlsx library
+import * as XLSX from "xlsx";
+import FilterSelect from "./FilterSelect";
+import DataEntry from "./DataEntry"; // Import the DataEntry component
 
-const FarmerDetails = () => {
+const FarmerDetails = ({ currentComponent, setCurrentComponent }) => {
   const [farmerData, setFarmerData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchText, setSearchText] = useState(""); // For search functionality
+  const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
 
   useEffect(() => {
     const fetchFarmerData = async () => {
       try {
-        // Get the auth token from localStorage
         const authToken = localStorage.getItem("authToken");
 
-        // If no auth token, show error
         if (!authToken) {
           setError("Authorization token not found.");
           setLoading(false);
           return;
         }
 
-        // Fetch data from API
         const response = await axios.get(
           "http://localhost:8000/api/farmers/details",
           {
@@ -33,7 +33,6 @@ const FarmerDetails = () => {
           }
         );
 
-        // Set data to state
         setFarmerData(response.data);
         setLoading(false);
       } catch (err) {
@@ -45,7 +44,6 @@ const FarmerDetails = () => {
     fetchFarmerData();
   }, []);
 
-  // Define columns for Ant Design Table
   const columns = [
     {
       title: "Farmer Name",
@@ -69,7 +67,6 @@ const FarmerDetails = () => {
     },
   ];
 
-  // Handle Search Filter
   const handleSearchChange = (e) => {
     setSearchText(e.target.value);
   };
@@ -78,22 +75,23 @@ const FarmerDetails = () => {
     farmer.farmer_name.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  // Function to export table data to Excel
   const handleExport = () => {
-    // Create a worksheet from the filtered data
     const ws = XLSX.utils.json_to_sheet(filteredData);
-
-    // Create a new workbook and append the worksheet to it
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Farmers Data");
-
-    // Write the workbook to a file
     XLSX.writeFile(wb, "FarmersData.xlsx");
+  };
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
   };
 
   return (
     <div style={{ margin: "10px" }}>
-      {/* Inventory Title and Search Bar */}
       <div
         style={{
           display: "flex",
@@ -102,18 +100,15 @@ const FarmerDetails = () => {
           margin: 0,
         }}
       >
-        {/* Adjusted h2 to align better */}
         <h2
           style={{
             fontWeight: "bold",
             margin: 0,
-            lineHeight: "1", // Ensures consistent alignment
+            lineHeight: "1",
           }}
         >
           Inventory
         </h2>
-
-        {/* Input aligned with the heading */}
         <Space>
           <Input
             placeholder="Search by Farmer Name"
@@ -121,41 +116,64 @@ const FarmerDetails = () => {
             onChange={handleSearchChange}
             style={{
               width: 400,
-              height: 35, // Ensure consistent height
+              height: 35,
               display: "flex",
-              alignItems: "center", // Align content inside the input
+              alignItems: "center",
             }}
-            suffix={<SearchOutlined style={{ color: "#6A9C89" }} />} // Search icon with custom color
+            suffix={<SearchOutlined style={{ color: "#6A9C89" }} />}
           />
         </Space>
       </div>
 
-      {/* Export Button */}
-      <div style={{ marginTop: "15px", marginBottom: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "15px",
+          marginBottom: "20px",
+          gap: "10px",
+        }}
+      >
+        {/* Add New Entry Button */}
         <Button
           type="primary"
-          onClick={handleExport}
-          style={{ backgroundColor: "#6A9C89", borderColor: "#6A9C89" }}
+          onClick={showModal}
+          style={{
+            backgroundColor: "#6A9C89",
+            borderColor: "#6A9C89",
+          }}
+          icon={<PlusOutlined />}
         >
-          Export to Excel
+          Add New Entry
         </Button>
+
+        {/* Export and Filter Options */}
+        <div style={{ display: "flex", gap: "10px" }}>
+          <FilterSelect
+            currentComponent={currentComponent}
+            setCurrentComponent={setCurrentComponent}
+          />
+          <Button
+            type="primary"
+            onClick={handleExport}
+            style={{ backgroundColor: "#6A9C89", borderColor: "#6A9C89" }}
+          >
+            Export to Excel
+          </Button>
+        </div>
       </div>
 
-      {/* Spinner and Error Handling */}
       {loading && <Spin size="large" />}
       {error && <Alert message={error} type="error" />}
-
-      {/* Table */}
       {!loading && !error && (
         <Table
           columns={columns}
-          dataSource={filteredData} // Use filtered data based on search input
-          rowKey="farmer_name" // You can use any unique identifier here
-          pagination={false} // Optional: if you want to disable pagination
+          dataSource={filteredData}
+          rowKey="farmer_name"
+          pagination={false}
           style={{
-            marginTop: "20px", // To push the table below the title
+            marginTop: "20px",
           }}
-          // Custom styles for column headers
           components={{
             header: {
               cell: (props) => {
@@ -163,8 +181,8 @@ const FarmerDetails = () => {
                   <th
                     {...props}
                     style={{
-                      backgroundColor: "#6A9C89", // Green background for headers
-                      color: "white", // White text for the header
+                      backgroundColor: "#6A9C89",
+                      color: "white",
                     }}
                   />
                 );
@@ -173,6 +191,16 @@ const FarmerDetails = () => {
           }}
         />
       )}
+
+      {/* Modal for Data Entry */}
+      <Modal
+        visible={isModalVisible}
+        onCancel={handleModalClose}
+        footer={null} // Remove default footer buttons
+        width={800} // Optional: Adjust modal width
+      >
+        <DataEntry />
+      </Modal>
     </div>
   );
 };

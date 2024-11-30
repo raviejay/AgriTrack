@@ -41,7 +41,7 @@ const Sidebar = () => {
   };
 
   const userType = localStorage.getItem("userType");
-
+  const userName = localStorage.getItem("userName");
   const profileMenu = (
     <Menu>
       <Menu.Item
@@ -83,6 +83,15 @@ const Sidebar = () => {
         />
       </div>
 
+      {/* Welcome User */}
+      {!collapsed && (
+        <div className="welcome-container">
+          <h3 className="welcome-text">
+            Welcome, <span className="username">{userName}</span>!
+          </h3>
+        </div>
+      )}
+
       {/* Menu Items */}
       <Menu
         style={{ backgroundColor: "#6A9C89" }}
@@ -98,16 +107,6 @@ const Sidebar = () => {
           }}
         >
           Dashboard
-        </Menu.Item>
-        <Menu.Item
-          key="/data-entry"
-          icon={<FormOutlined />}
-          onClick={() => {
-            setSelectedKey("/data-entry");
-            navigate("/data-entry");
-          }}
-        >
-          Data Entry
         </Menu.Item>
         <Menu.Item
           key="/inventory"
